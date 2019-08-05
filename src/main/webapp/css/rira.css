@@ -1,0 +1,383 @@
+/* 폰트 불러오기 */
+@import
+  url('https://fonts.googleapis.com/css?family=Noto+Sans+KR:400,500&subset=korean')
+  ;
+
+@import url('https://fonts.googleapis.com/css?family=Titillium+Web');
+
+/* 수정, 삭제 등 아이콘 사용 */
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
+
+/* 전체 스타일 */
+:root {
+  box-sizing: border-box;
+  font-size: 16px;
+  /* font-variant: small-caps; */
+  margin: 0px;
+  padding: 0px;
+  /* CKEditor + Bootstrap 사용 시 CSS */
+  --ck-z-default: 100;
+  --ck-z-modal: calc( var(--ck-z-default) + 999 );
+}
+*{
+  font-family: 'Titillium Web', 'Noto Sans KR', 'Malgun Gothic';
+}
+
+a, button, label{
+}
+
+i .icon{
+  font-size: 20px;
+}
+
+
+input[type="text"], textarea{
+}
+
+body{
+  background-color: rgba(255,255,255,0.9);
+  min-height: 100%;
+  background-attachment: fixed;
+  /* z-index : -1; < 해당 태그의 모든 자식 태그들의 투명도가 적용되지 않음 */
+}
+
+.index body{
+  background-color: transparent;
+  min-height: 100%;
+  /* z-index : -1; < 해당 태그의 모든 자식 태그들의 투명도가 적용되지 않음 */
+}
+.dropdown-item .material-icons {
+    vertical-align: sub;
+    font-size: 20px;
+}
+table .material-icons {
+    vertical-align: sub;
+    font-size: 20px;
+}
+#favnav .material-icons {
+    vertical-align: bottom;
+}
+
+.avatar {
+  object-fit: cover;
+  border-radius:50%;
+  width: 36px;
+  height: 36px;
+}
+
+.rch-topnav {
+  transition: background-color 200ms linear;
+  border-radius : 0.25rem !important;
+}
+
+.rch-topnav.scrolled {
+  background-color: rgba(126, 87, 194, 0.7) !important;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  transition: background-color 200ms linear;
+}
+
+.rch-topnav.scrolled .nav-link {
+  color:#FFF;
+}
+
+.rch-topnav.scrolled .nav-link:hover {
+  color:#ffff80;
+}
+
+.rch-nav-mobile-scroll{
+  display: none;
+}
+
+.rch-nav-mobile-scroll.scrolled{
+  display: initial;
+}
+
+.rch-dropdown-scroll{
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.form-label-group {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.form-label-group > input,
+.form-label-group > label {
+  padding: var(--input-padding-y) var(--input-padding-x);
+}
+
+.form-label-group > label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  width: 100%;
+  margin-bottom: 0; /* Override default `<label>` margin */
+  line-height: 1.5;
+  color: #495057;
+  border: 1px solid transparent;
+  border-radius: .25rem;
+  transition: all .1s ease-in-out;
+}
+
+.form-label-group input::-webkit-input-placeholder {
+  color: transparent;
+}
+
+.form-label-group input:-ms-input-placeholder {
+  color: transparent;
+}
+
+.form-label-group input::-ms-input-placeholder {
+  color: transparent;
+}
+
+.form-label-group input::-moz-placeholder {
+  color: transparent;
+}
+
+.form-label-group input::placeholder {
+  color: transparent;
+}
+
+.form-label-group input:not(:placeholder-shown) {
+  padding-top: calc(var(--input-padding-y) + var(--input-padding-y) * (2 / 3));
+  padding-bottom: calc(var(--input-padding-y) / 3);
+}
+
+.form-label-group input:not(:placeholder-shown) ~ label {
+  padding-top: calc(var(--input-padding-y) / 3);
+  padding-bottom: calc(var(--input-padding-y) / 3);
+  font-size: 12px;
+  color: #777;
+}
+
+
+/* 4px: $spacer * 0.25 8px: $spacer * 0.5 16px: $spacer 20px: $spacer * 1.25 24px: $spacer * 1.5 */
+ .sidebar-dimmer {
+   display : none;
+   position : fixed;
+   top : 0;
+   width : 100%;
+   height : 100%;
+   background-color: rgba(33, 33, 33, 0.2);
+   z-index: 98;
+   transition: opacity 0.2s ease-in-out;
+}
+ .sidebar {
+   display : none;
+   position: fixed;
+   top : 4.5rem;
+   width: 90%;
+   margin : 1.25rem;
+   z-index: 99;
+   max-height : 80vh;
+   overflow: scroll;
+   transition: opacity 0.2s ease-in-out;
+}
+ .sidebar .sidebar-user .category-content {
+   padding: 1rem;
+   text-align: center;
+   color: #fff;
+   background: url(https://picsum.photos/260/80?image=652&blur) center center no-repeat;
+   background-repeat: no-repeat;
+   background-position: center center;
+   background-size: cover;
+}
+ .sidebar .sidebar-user .category-content:first-child {
+   border-bottom-right-radius: 0.25rem;
+   border-bottom-left-radius: 0.25rem;
+}
+ .sidebar .sidebar-user .category-content:last-child {
+   border-top-right-radius: 0.25rem;
+   border-top-left-radius: 0.25rem;
+}
+ .sidebar .sidebar-content {
+   position: relative;
+   border-radius: 0.25rem;
+   margin-bottom: 1.25rem;
+}
+ .sidebar .category-title {
+   position: relative;
+   margin: 0;
+   padding: 12px 20px;
+   padding-right: 46px;
+   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+ .sidebar.sidebar-default .category-title {
+   border-bottom-color: #dee2e6;
+}
+ .sidebar.sidebar-default .sidebar-category {
+   background-color: rgba(255, 255, 255, 0.9);
+}
+ .sidebar.sidebar-default .category-title > span {
+   display: block;
+   text-transform: uppercase;
+   font-weight: 500;
+   font-size: 0.8rem;
+}
+ .sidebar.sidebar-default .category-content .nav li > a {
+   color: rgba(100, 100, 100, 1);
+}
+ .sidebar.sidebar-default .category-content .nav li > a.active, .sidebar.sidebar-default .category-content .nav li > a[aria-expanded="true"], .sidebar.sidebar-default .category-content .nav li > a:hover, .sidebar.sidebar-default .category-content .nav li > a:focus {
+   background-color: rgba(155, 155, 242, 0.9);
+}
+ .sidebar .category-content {
+   position: relative;
+}
+ .sidebar .category-content .nav {
+   position: relative;
+   margin: 0;
+   padding: 0.5rem 0;
+}
+ .sidebar .category-content .nav li {
+   position: relative;
+   list-style: none;
+}
+ .sidebar .category-content .nav li > a {
+   font-size: 1rem;
+   border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+   transition: background 0.15s linear, color 0.15s linear;
+}
+ .sidebar .category-content .nav li > a[data-toggle="collapse"] {
+   padding-right: 2rem;
+}
+ .sidebar .category-content .nav li > a[data-toggle="collapse"]:after {
+   position: absolute;
+   top: 0.5rem;
+   right: 1rem;
+   height: 1.5rem;
+   line-height: 1.5rem;
+   display: block;
+   content: '\e5cc';
+   font-family: "Material Icons";
+   font-size: 1.5rem;
+   font-weight: normal;
+   transform: rotate(0deg);
+   transition: -webkit-transform 0.2s ease-in-out;
+}
+ .sidebar .category-content .nav li > a[data-toggle="collapse"][aria-expanded="true"]:after {
+   transform: rotate(90deg);
+}
+ .sidebar .category-content .nav li > a > i {
+   float: left;
+   top: 0;
+   margin-right: 15px;
+   transition: opacity 0.2s ease-in-out;
+}
+ .sidebar .category-content .nav li ul {
+   padding: 0;
+}
+ .sidebar .category-content .nav li ul > li a {
+   padding-left: 2.75rem;
+}
+ .sidebar .category-content .nav > li > a {
+   font-weight: 500;
+}
+ .sidebar.sidebar-separate .sidebar-category {
+   margin-bottom: 1.25rem;
+   border-radius: 0.25rem;
+   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+ @media (min-width: 768px) {
+   .sidebar {
+     padding-top: 0rem !important;
+     display: table-cell;
+     vertical-align: top;
+     width: 280px;
+     padding: 0 1.25rem;
+     overflow: inherit;
+     max-height : unset;
+  }
+   .sidebar.sidebar-fixed {
+     position: initial;
+     top: 5.5rem;
+  }
+   .sidebar.sidebar-default .sidebar-category {
+     background-color: rgba(255, 255, 255, 0.7);
+  }
+   .sidebar.sidebar-separate .sidebar-content {
+     box-shadow: none;
+  }
+   .sidebar.sidebar-separate .sidebar-category {
+     margin-bottom: 1.25rem;
+     border-radius: 0.25rem;
+     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  }
+   .content-wrapper {
+     display: table-cell;
+  }
+}
+ 
+
+/*  */
+/*
+ * Override the width of the table set by Bootstrap content styles.
+ * See: https://github.com/ckeditor/ckeditor5-table/issues/154.
+ */
+.ck-content .table {
+    width: auto;
+}
+
+
+
+
+
+
+
+
+
+
+
+.material-icons{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: bottom;
+}
+
+.index {
+  background-image: url('../images/index_rira.jpg');
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.bg_none{
+  background: none;
+}
+
+html {
+  background: url(./tu10.jpg) right no-repeat;
+  background-size: cover;
+  height: 100%;
+  background-attachment: fixed;
+  font-size: 16px;
+}
+
+
+/* Small devices (landscape phones, less than 768px) */
+@media (max-width: 767.98px) {
+  
+.index {
+    background: url('../images/index_vert_richer3.png') top no-repeat !important;
+    background-size: cover !important;
+    width: 100% !important;
+    min-height : 100vh !important;
+    background-attachment: fixed !important;
+}
+
+html {
+  background: url(./tu10.jpg) right no-repeat;
+  background-size: cover;
+  height: 100%;
+  background-attachment: fixed;
+}
+  
+}
+
+
+@media (min-width:768px) {
+  
+}

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 코드는 SQL에서 직접 처리를 권장 -->
+<mapper namespace="dev.mvc.customer.CustomercodeDAOInter">
+
+  <insert id="add_code" parameterType="CustomercodeVO">
+    insert into customerstatscode
+    (customerstatscodeno, customerstatschar, customerstatsdesc)
+    values(
+      (SELECT NVL(MIN(customerstatscodeno), 0) - 1 as customerstatscodeno FROM customerstatscode), #{customerstatschar},#{customerstatsdesc})
+  </insert>
+  
+  <select id="view_codes" resultType="CustomercodeVO">
+    select customerstatscodeno, customerstatschar, customerstatsdesc
+    from customerstatscode
+    order by customerstatscodeno desc
+  </select>
+  
+  <select id="view_codes_list" resultType="CustomercodeVO">
+    select customerstatscodeno, customerstatschar, customerstatsdesc
+    from customerstatscode
+    order by customerstatscodeno desc
+  </select>
+  
+  <select id="select_code" parameterType="int" resultType="CustomercodeVO">
+    select customerstatscodeno, customerstatschar, customerstatsdesc
+    from customerstatscode
+    where customerstatscodeno = #{customerstatscodeno}
+  </select>
+  
+  <delete id="remove_code" parameterType="int">
+    delete from customerstatscode
+    where customerstatscodeno = #{customerstatscodeno}
+  </delete>
+
+</mapper>

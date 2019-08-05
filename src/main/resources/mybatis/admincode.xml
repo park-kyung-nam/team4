@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 코드는 SQL에서 직접 처리를 권장 -->
+<mapper namespace="dev.mvc.admin.AdmincodeDAOInter">
+
+  <insert id="add_code" parameterType="AdmincodeVO">
+    insert into admincode
+    (admincodeno, privchar, privdesc)
+    values(
+      (SELECT NVL(MAX(admincodeno), 0) + 1 as admincodeno FROM admincode), #{privchar},#{privdesc})
+  </insert>
+  
+  <select id="view_codes" resultType="AdmincodeVO">
+    select admincodeno, privchar, privdesc
+    from admincode
+    order by admincodeno desc
+  </select>
+  
+  <select id="view_codes_list" resultType="AdmincodeVO">
+    select admincodeno, privchar, privdesc
+    from admincode
+    where admincodeno > 0
+    order by admincodeno desc
+  </select>
+  
+  <select id="select_code" parameterType="int" resultType="AdmincodeVO">
+    select admincodeno, privchar, privdesc
+    from admincode
+    where admincodeno = #{admincodeno}
+  </select>
+  
+  <delete id="remove_code" parameterType="int">
+    delete from admincode
+    where admincodeno = #{admincodeno}
+  </delete>
+
+</mapper>

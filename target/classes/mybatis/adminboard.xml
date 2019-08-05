@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 코드는 SQL에서 직접 처리를 권장 -->
+<mapper namespace="dev.mvc.adminboard.AdminboardDAOInter">
+
+  <insert id="post" parameterType="AdminboardVO">
+    INSERT INTO adminboard(adminboardno, adminno,
+        title, content, files, sizes, 
+        cnt, rdate, ddate, word)  
+        
+    VALUES((SELECT NVL(MAX(adminboardno), 0) + 1 as adminboardno FROM adminboard), #{adminno},
+        #{title},#{content}, #{files}, #{sizes},
+        0, sysdate, #{ddate}, #{word}
+    )
+    
+  </insert>
+  
+  <select id="get_created_no" resultType="int">
+    select NVL(MAX(adminboardno), 0) adminboardno FROM adminboard
+  </select>
+  
+  <select id="boardlist" resultType="AdminboardVO">
+    select adminboardno, adminno, title, content, files, sizes, cnt, rdate, ddate, word
+    from adminboard
+    order by adminboardno desc
+  </select>
+  
+  <select id="boardlist_incl" resultType="AdminboardInclVO">
+    select 
+      b.adminboardno, b.adminno, b.title, b.content, b.files, b.sizes, b.cnt, b.rdate, b.ddate, b.word,
+      a.adminno as a_adminno, a.name, a.id, a.img, a.profileimg, a.admincodeno, a.phone1, a.phone2, a.email
+    from adminboard b, admin a
+    where a.adminno = b.adminno
+    order by adminboardno desc
+  </select>
+  
+  <select id="read" resultType="AdminboardVO" parameterType="int">
+    select adminboardno, adminno, title, content, files, sizes, cnt, rdate, ddate, word
+    from adminboard
+    where adminboardno = #{adminboardno}
+  </select>
+  
+  <select id="read_incl" resultType="AdminboardInclVO" parameterType="int">
+    select 
+      b.adminboardno, b.adminno, b.title, b.content, b.files, b.sizes, b.cnt, b.rdate, b.ddate, b.word,
+      a.adminno as a_adminno, a.name, a.id, a.img, a.profileimg, a.admincodeno, a.phone1, a.phone2, a.email
+    from adminboard b, admin a
+    where a.adminno = b.adminno and adminboardno = #{adminboardno}
+  </select>
+  
+  <select id="boardlist_incl_spg" resultType="AdminboardInclVO" parameterType="HashMap">
+    select
+      rownum as r,
+      adminboardno, adminno, title, content, files, sizes, cnt, rdate, ddate, word,
+      a_adminno, name, id, img, profileimg, admincodeno, phone1, phone2, email
+    from(
+      select
+        rownum as r,
+        adminboardno, adminno, title, content, files, sizes, cnt, rdate, ddate, word,
+        a_adminno, name, id, img, profileimg, admincodeno, phone1, phone2, email
+      from(
+        select 
+          b.adminboardno, b.adminno, b.title, b.content, b.files, b.sizes, b.cnt, b.rdate, b.ddate, b.word,
+          a.adminno as a_adminno, a.name, a.id, a.img, a.profileimg, a.admincodeno, a.phone1, a.phone2, a.email
+        from adminboard b, admin a
+        where a.adminno = b.adminno
+        <choose>
+          <when test="content != null and content != ''">
+           and content LIKE '%' || #{content} || '%'
+          </when>
+          <when test="word != null and word != ''">
+           and word LIKE '%' || #{word} || '%'
+          </when>
+          <when test="name != null and name != ''">
+           and name LIKE '%' || #{name} || '%'
+          </when>
+          <when test="adminno != null and adminno != ''">
+           and adminno = #{adminno}
+          </when>
+          <when test="id != null and id != ''">
+           and id = #{id}
+          </when>
+          <otherwise>
+          </otherwise>
+        </choose>
+        order by adminboardno desc
+      )
+    )
+    where <![CDATA[r >= #{startNum} AND r <= #{endNum}]]>
+  </select>
+  
+  <select id="search_count" resultType="int" parameterType="HashMap">
+    SELECT COUNT(*) as cnt
+    from adminboard b, admin a
+    where a.adminno = b.adminno
+        <choose>
+          <when test="content != null and content != ''">
+           and content LIKE '%' || #{content} || '%'
+          </when>
+          <when test="word != null and word != ''">
+           and word LIKE '%' || #{word} || '%'
+          </when>
+          <when test="name != null and name != ''">
+           and name LIKE '%' || #{name} || '%'
+          </when>
+          <when test="adminno != null and adminno != ''">
+           and adminno = #{adminno}
+          </when>
+          <when test="id != null and id != ''">
+           and id = #{id}
+          </when>
+          <otherwise>
+          </otherwise>
+        </choose>
+  </select>
+  
+  
+  <update id="update" parameterType="AdminboardVO">
+    update adminboard
+    set 
+      title=#{title}, 
+      content=#{content}, 
+      files=#{files}, 
+      sizes=#{sizes},
+      ddate=#{ddate}, 
+      word=#{word}
+    where adminboardno = #{adminboardno}
+  </update>
+  
+  <delete id="delete" parameterType="int">
+    delete from adminboard
+    where adminboardno = #{adminboardno}
+  </delete>
+  
+  <delete id="discard" parameterType="int">
+    update adminboard
+    set 
+      adminno = -1
+    where adminno = #{adminno}
+  </delete>
+  
+</mapper>

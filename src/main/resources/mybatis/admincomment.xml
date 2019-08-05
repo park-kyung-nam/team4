@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dev.mvc.adminboard.CommentsDAOInter">
+  
+  <insert id="create" parameterType="CommentsVO">
+    insert into admincomment(
+      admincommentno,
+      adminboardno, adminno,
+      comments,
+      grpno, indent, ansnum
+    ) values(
+      (SELECT NVL(MAX(admincommentno), 0) + 1 as admincommentno FROM admincomment),
+      #{adminboardno}, #{adminno}, #{comments},
+      (SELECT NVL(MAX(grpno), 0) + 1 as grpno FROM admincomment), 0, 0
+    )
+  </insert>
+  
+  <select id="comments" resultType="CommentsInclVO" parameterType="int">
+    SELECT 
+      rownum as r,
+      a.adminno as a_adminno, a.name, a.id, a.profileimg, a.admincodeno, a.email,
+      s.admincodeno as s_admincodeno, s.privchar, s.privdesc,
+      b.adminboardno as adminboardno, b.adminno as b_adminno, b.title,
+      c.admincommentno,
+      c.adminboardno as c_adminboardno, c.adminno,
+      c.comments, c.rdate,
+      c.grpno, c.indent, c.ansnum
+    FROM admin a, adminboard b, admincomment c, admincode s
+    where 
+      a.admincodeno = s.admincodeno
+      and a.adminno = b.adminno
+      and c.adminboardno = b.adminboardno
+      and b.adminboardno = #{adminboardno}
+    ORDER BY grpno DESC, ansnum ASC
+  </select>
+
+  <select id="read" resultType="CommentsVO" parameterType="int">
+    SELECT 
+      admincommentno,
+      adminboardno, adminno,
+      comments, rdate,
+      grpno, indent, ansnum
+    FROM admincomment
+    where admincommentno = #{admincommentno}
+  </select>
+
+  <update id="update" parameterType="CommentsVO">
+    UPDATE admincomment
+    SET comments=#{comments}
+    WHERE admincommentno=#{admincommentno}
+  </update>
+
+  <delete id="delete" parameterType="int">
+    DELETE FROM admincomment
+    WHERE admincommentno=#{admincommentno}
+  </delete>
+
+  <!--  -->
+  <select id="search_count" resultType="int" parameterType="int">
+    SELECT COUNT(*) as cnt
+    FROM admincomment
+    where adminboardno = #{adminboardno}
+  </select>
+  
+  
+
+  <insert id="reply" parameterType="CommentsVO">
+    insert into admincomment(
+      admincommentno,
+      adminboardno, adminno,
+      comments,
+      grpno, indent, ansnum
+    ) values(
+      (SELECT NVL(MAX(admincommentno), 0) + 1 as admincommentno FROM admincomment),
+      #{adminboardno}, #{adminno}, #{comments},
+      #{grpno}, #{indent}, #{ansnum}
+    )
+  </insert>
+  
+  <update id="increaseAnsnum" parameterType="HashMap">
+    UPDATE admincomment
+    SET ansnum = ansnum + 1
+    WHERE grpno = #{grpno} AND ansnum > #{ansnum}
+  </update>
+
+  
+</mapper>
+
+
+
+
+
+
+

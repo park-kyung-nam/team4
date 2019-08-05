@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 코드는 SQL에서 직접 처리를 권장 -->
+<mapper namespace="dev.mvc.adminlog.AdminlogtypeDAOInter">
+
+  <insert id="add_code" parameterType="AdminlogtypeVO">
+    insert into adminlogtype
+    (logtype, typedesc)
+    values(
+      (SELECT NVL(MAX(logtype), 0) + 1 as logtype FROM adminlogtype), #{typedesc})
+  </insert>
+  
+  <select id="view_codes" resultType="AdminlogtypeVO">
+    select logtype, typedesc
+    from adminlogtype
+    order by logtype desc
+  </select>
+  
+  <select id="view_codes_list" resultType="AdminlogtypeVO">
+    select logtype, typedesc
+    from adminlogtype
+    where logtype > 0
+    order by logtype desc
+  </select>
+  
+  <select id="select_code" parameterType="int" resultType="AdminlogtypeVO">
+    select logtype, typedesc
+    from adminlogtype
+    where logtype = #{logtype}
+  </select>
+  
+  <delete id="remove_code" parameterType="int">
+    delete from adminlogtype
+    where logtype = #{logtype}
+  </delete>
+
+</mapper>

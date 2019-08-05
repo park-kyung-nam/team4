@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 코드는 SQL에서 직접 처리를 권장 -->
+<mapper namespace="dev.mvc.customer.CustomerDAOInter">
+
+  <select id="check_id" resultType="int" parameterType="String">
+    select count(*) as cnt
+    from customer
+    where id=#{id}
+  </select>
+
+  <select id="check_email" resultType="int" parameterType="String">
+    select count(*) as cnt
+    from customer
+    where email=#{email}
+  </select>
+  
+  <select id="check_login" resultType="int" parameterType="HashMap">
+    select count(*) as cnt
+    from customer
+    where id=#{id} and passwd=#{passwd}
+  </select>
+
+  <!-- 현재는 즉시 가입. 이메일 인증 구현 시 변경 필요. -->
+  <insert id="register_customer" parameterType="CustomerVO">
+    insert into customer
+    (customerno,
+     name, id, passwd, customerstatscodeno,
+     phone1, email, rdate)
+    values(
+    (SELECT NVL(MAX(customerno), 0) + 1 as customerno FROM customer),
+    #{name}, #{id}, #{passwd}, 1,
+    #{phone1}, #{email}, sysdate)
+  </insert>
+  
+  <insert id="register_customer_full" parameterType="CustomerVO">
+    insert into customer
+    (customerno,
+     name, id, passwd, customerstatscodeno,
+     address, phone1, phone2, email, bdate
+     notifemail, notifphone, rdate)
+    values(
+    (SELECT NVL(MAX(customerno), 0) + 1 as customerno FROM customer),
+    #{name}, #{id}, #{passwd}, 1,
+    #{address}, #{phone1}, #{phone2}, #{email}, #{bdate} 
+    #{notifemail}, #{notifphone}, sysdate)
+  </insert>
+  
+  <select id="list_customer" resultType="CustomerVO">
+    select customerno, name, id, customerstatscodeno, address, phone1, phone2, email, notifemail, notifphone, rdate, ddate, bdate
+    from customer
+    order by customerno desc
+  </select>
+  
+  <select id="list_customer_withcodes_search_paging" resultType="CustomerInclVO">
+    select 
+      customerstatscodeno, customerstatschar, customerstatsdesc,
+      customerno, name, id, c_customerstatscodeno,
+      address, phone1, phone2, email, notifemail, notifphone, rdate, ddate, bdate, r
+    from(
+      select
+        customerstatscodeno, customerstatschar, customerstatsdesc,
+        customerno, name, id, c_customerstatscodeno,
+        address, phone1, phone2, email, notifemail, notifphone, rdate, ddate, bdate, rownum as r
+      from(
+        select 
+          s.customerstatscodeno as customerstatscodeno, s.customerstatschar, s.customerstatsdesc,
+          c.customerno, c.name, c.id, c.customerstatscodeno as c_customerstatscodeno,
+          c.address, c.phone1, c.phone2, c.email, c.notifemail, c.notifphone, c.rdate, c.ddate, c.bdate
+        from customer c, customerstatscode s
+        
+    <choose>
+      <when test="name == null or name == ''"> <!-- 검색하지 않는 경우 -->
+        where (s.customerstatscodeno = c.customerstatscodeno)
+      </when>
+      <otherwise>
+        WHERE (s.customerstatscodeno = c.customerstatscodeno) AND name LIKE '%' || #{name} || '%'  
+      </otherwise>
+    </choose>
+        order by c.customerno desc
+      )
+    )
+    where <![CDATA[r >= #{startNum} AND r <= #{endNum}]]>
+  
+  </select>
+  
+  <select id="search_count" resultType="int" parameterType="HashMap">
+    SELECT COUNT(*) as cnt
+    FROM customer
+    <choose>
+      <when test="name == null or name == ''"> <!-- 검색하지 않는 경우 -->
+      </when>
+      <otherwise>
+        WHERE name LIKE '%' || #{name} || '%'  
+      </otherwise>
+    </choose>
+  </select>
+  
+  
+  <select id="list_customer_withcodes" resultType="CustomerInclVO" parameterType="HashMap">
+    select 
+    s.customerstatscodeno, s.customerstatschar, s.customerstatsdesc,
+    c.customerno, c.name, c.id, c.customerstatscodeno,
+    c.address, c.phone1, c.phone2, c.email, c.notifemail, c.notifphone, c.rdate, c.ddate, c.bdate
+    from customer c, customerstatscode s
+    where (s.customerstatscodeno = c.customerstatscodeno)
+    order by c.customerno desc
+  </select>
+  
+  <select id="select_customer" resultType="CustomerVO" parameterType="int">
+    select customerno, name, id, customerstatscodeno, zipcode, address, address2, phone1, phone2, email, notifemail, notifphone, rdate, ddate, bdate
+    from customer
+    where customerno = #{customerno}
+  </select>
+  
+  <select id="select_customer_withcodes" resultType="CustomerInclVO" parameterType="int">
+    select 
+    s.customerstatscodeno, s.customerstatschar, s.customerstatsdesc,
+    c.customerno, c.name, c.id, c.customerstatscodeno,
+    c.zipcode, c.address, c.address2, c.phone1, c.phone2, c.email, c.notifemail, c.notifphone, c.rdate, c.ddate, c.bdate
+    from customer c, customerstatscode s
+    where (s.customerstatscodeno = c.customerstatscodeno)
+    and (customerno = #{customerno})
+  </select>
+  
+  
+  <select id="select_customer_withcodes_id" resultType="CustomerInclVO" parameterType="String">
+    select 
+    s.customerstatscodeno, s.customerstatschar, s.customerstatsdesc,
+    c.customerno, c.name, c.id, c.customerstatscodeno,
+    c.zipcode, c.address, c.address2, c.phone1, c.phone2, c.email, c.notifemail, c.notifphone, c.rdate, c.ddate, c.bdate
+    from customer c, customerstatscode s
+    where (s.customerstatscodeno = c.customerstatscodeno)
+    and (id = #{id})
+  </select>
+  
+  <update id="update_customer_profile" parameterType="CustomerVO">
+
+    update customer
+    set
+      bdate = #{bdate},
+      zipcode = #{zipcode},
+      address = #{address},
+      address2 = #{address2},
+      phone1 = #{phone1},
+      phone2 = #{phone2},
+      email = #{email},
+      notifemail = #{notifemail},
+      notifphone = #{notifphone}
+
+    where customerno = #{customerno}
+  </update>
+  
+  <update id="update_customer_priv" parameterType="HashMap">
+    update customer
+    set
+      customerstatscodeno = #{customerstatscodeno}
+    where customerno = #{customerno}
+  </update>
+  
+  <delete id="delete_customer" parameterType="int">
+    DELETE FROM customer
+    where customerno = #{customerno}
+  </delete>
+  
+  <!-- 관리자가 사용하는 외부 테이블 -->
+  
+  
+</mapper>

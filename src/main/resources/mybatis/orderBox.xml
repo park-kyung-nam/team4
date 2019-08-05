@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="dev.mvc.orderBox.orderBoxDAOInter">
+    
+
+    
+    <!-- 제품 상세보기 -->
+    <select id="detail_product" resultType="orderBoxVO" parameterType="int">
+      SELECT productno, productName, productPrice, productImg 
+      FROM productgrp
+      WHERE productno =#{productno }
+    </select>
+    
+<!-- ***************************************************************** -->
+
+ <!-- 장바구니 등록 (임시값 = 사용자 1번)-->
+  <insert id="orderBox" parameterType="orderBoxVO">
+INSERT INTO orderBox(orderBoxno, 
+                productno, customerno)
+ 
+VALUES ((SELECT NVL(max(orderBoxno), 0) +1 as orderBoxno from orderBox),
+           #{productno}, #{customerno})
+  </insert>
+  
+  
+ <!-- 장바구니 목록 -->
+  <select id="list_orderBox" resultType="orderBoxVO">
+SELECT 
+		  b.orderBoxno as orderBoxno, 
+		  b.customerno as customerno,
+		  p.productno as productno,
+		  c.name as customerName, 
+		  p.prod_title as productName,
+      p.thumbs as productImg,
+		  p.prod_price as productPrice
+FROM
+		  orderBox b, product p, customer c
+WHERE 
+		  p.productno = b.productno AND
+		  b.customerno = #{customerno}
+ORDER BY 
+      b.orderBoxno
+  </select> 
+  
+
+  <!--  장바구니 삭제 -->
+  <delete id="delete_orderBox">
+DELETE FROM orderBox 
+WHERE orderBoxno = #{orderBoxno }
+  </delete>
+
+  <!-- 장바구니 읽기 -->
+<select id="read_orderBox" resultType="orderBoxVO">
+SELECT 
+      b.orderBoxno as orderBoxno, 
+      b.customerno as customerno, 
+      p.productno as productno,
+      c.customerName as customerName, 
+      p.productName as productName,
+      p.thumbs as productImg,
+      p.productPrice as productPrice
+FROM
+      orderBox b, productgrp p, customer c 
+WHERE 
+      c.customerno = b.customerno AND
+      p.productno = b.productno AND 
+      b.orderBoxno = #{orderBoxno } 
+ORDER BY 
+          b.orderBoxno
+</select>
+  
+<!-- 동일한 상품 검사 -->
+  <select id="count_orderBox" resultType="int">
+  SELECT COUNT(*)
+  FROM orderBox
+  WHERE customerno = 1
+  AND productno = #{productno }
+  </select>
+
+  
+</mapper>

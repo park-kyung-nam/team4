@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="dev.mvc.event.EventDAOInter"> 
+  <!-- 
+  insert: INSERT SQL 실행
+  id: Spring에서 호출시 사용
+  parameterType: 전달받는 데이터 객체
+  return: 등록한 레코드 갯수 리턴
+  SQL선언시 ';'은 삭제
+  #{}: ? 동일
+  #{name}: public String getName(){...
+   -->
+   <insert id="create" parameterType="EventVO">
+   INSERT INTO event(eventno, e_title, e_content, e_file1, e_size1, e_thumb1, e_cnt, rdate, word, adminno, productno)
+   VALUES((SELECT NVL(MAX(eventno), 0)+1 as eventno FROM event), 
+              #{e_title}, #{e_content}, #{e_file1}, #{e_size1}, #{e_thumb1}, #{e_cnt}, sysdate, #{word}, #{adminno}, #{productno})
+   </insert>
+   
+   <!--  모든 카테고리 목록 -->
+   <select id="list" resultType="EventVO" >
+   SELECT eventno, e_title, e_content, e_file1, e_size1, e_thumb1, e_cnt, TO_CHAR(rdate, 'yyyy-mm-dd') as rdate,
+              word, adminno, productno
+   FROM event
+   ORDER BY eventno ASC
+   </select> 
+   
+   <select id="total_count" resultType="int" > 
+    SELECT COUNT(*) as count
+    FROM event
+  </select>
+   
+    <select id="read" resultType="EventVO" parameterType="int">
+   SELECT eventno, e_title, e_content, e_file1, e_size1, e_thumb1, e_cnt, rdate, word, adminno, productno 
+   FROM event
+   WHERE eventno = #{eventno}
+   </select>
+   
+   <!-- 수정 -->
+   <update id="update" parameterType="EventVO">
+     UPDATE event
+     SET e_title= #{e_title}, e_content= #{e_content},
+           e_file1=#{e_file1}, e_thumb1=#{e_thumb1}, e_size1=#{e_size1}, word=#{word}
+     WHERE eventno =#{eventno}
+   </update>
+   
+    <delete id="delete" parameterType="int">
+     DELETE FROM event
+     WHERE eventno = #{eventno}
+   </delete>
+   
+  <!-- 검색된 레코드 갯수 -->
+  <select id="search_count" resultType="int" parameterType="HashMap">
+    SELECT COUNT(*) as n_cnt
+    FROM event
+    <choose>
+      <when test="word == null or word == ''"> <!-- 검색하지 않는 경우 -->
+      </when>
+      <otherwise>
+        WHERE word LIKE '%' || #{word} || '%'  
+      </otherwise>
+    </choose>
+  </select>
+   
+   
+   <!-- 레코드 목록, 페이징 -->
+ <select id="list_by_search_paging" resultType="EventVO" parameterType="HashMap">
+    SELECT eventno, e_title, e_content, e_file1, e_size1, e_thumb1, e_cnt, rdate, word, adminno, productno, r 
+    FROM(
+          SELECT eventno, e_title, e_content, e_file1, e_size1, e_thumb1, e_cnt, rdate, word, adminno, productno, rownum as r
+          FROM(
+                    SELECT eventno, e_title, e_content, e_file1, e_size1, e_thumb1, e_cnt, rdate, word, adminno, productno
+                    FROM event
+                  <choose>
+                  <when test="word == null or word == ''"> <!-- 검색하지 않는 경우 -->
+                    </when>
+                    <otherwise>
+                    WHERE word LIKE '%' ||#{word}||'%' 
+                    </otherwise>
+                  </choose>
+                  ORDER BY eventno DESC
+          )
+  )
+  WHERE <![CDATA[r >= #{startNum} AND r <= #{endNum}]]>
+  
+  </select>
+  
+  <!-- 답변 -->
+  <insert id = "reply" parameterType= "EventVO">
+   INSERT INTO event(eventno, productno, adminno, e_title, e_content, e_file1, e_size1, e_thumb1, e_cnt, replycnt, 
+                             rdate, word, indent, ansnum)
+   VALUES((SELECT NVL(MAX(eventno), 0)+1 as eventno FROM event), #{productno}, #{adminno}, #{e_title}, #{e_content}, 
+              #{e_file1}, #{e_size1}, #{e_thumb1}, #{e_cnt}, #{replycnt}, sysdate, #{word}, #{indent}, #{ansnum})
+      
+  </insert>
+  
+</mapper>
+   

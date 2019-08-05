@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="dev.mvc.notice.NoticeDAOInter"> 
+  <!-- 
+  insert: INSERT SQL 실행
+  id: Spring에서 호출시 사용
+  parameterType: 전달받는 데이터 객체
+  return: 등록한 레코드 갯수 리턴
+  SQL선언시 ';'은 삭제
+  #{}: ? 동일
+  #{name}: public String getName(){...
+   -->
+   <insert id="create" parameterType="NoticeVO">
+     INSERT INTO notice(noticeno, n_title, n_content, n_file1, n_size1, n_cnt, rdate, word, adminno)
+     VALUES((SELECT NVL(MAX(noticeno), 0)+1 as noticeno FROM notice),
+                 #{n_title}, #{n_content}, #{n_file1}, #{n_size1}, #{n_cnt}, sysdate, #{word}, #{adminno})
+   </insert>
+   
+   <!--  모든 카테고리 목록 -->
+   <select id="list" resultType="NoticeVO" >
+   SELECT noticeno, n_title, n_content, n_file1, n_size1, n_cnt, TO_CHAR(rdate, 'yyyy-mm-dd') as rdate,
+              word, adminno
+   FROM notice
+   ORDER BY noticeno ASC
+ </select> 
+ 
+    <select id="total_count" resultType="int" > 
+    SELECT COUNT(*) as count
+    FROM notice
+  </select>
+  
+   <!-- 조회 -->
+   <select id="read" resultType="NoticeVO" parameterType="int">
+     SELECT noticeno, n_title, n_content, n_file1, n_size1, n_cnt, rdate, word, adminno 
+     FROM notice
+     WHERE noticeno = #{noticeno}
+   </select> 
+   
+   <!-- 수정 -->
+   <update id="update" parameterType="NoticeVO">
+     UPDATE notice
+     SET n_title= #{n_title}, n_content= #{n_content}, word= #{word}
+     WHERE noticeno =#{noticeno}
+   </update>
+   
+   <!-- 삭제 -->
+   <delete id="delete" parameterType="int">
+     DELETE FROM notice
+     WHERE noticeno = #{noticeno}
+   </delete>
+   
+   <!-- 검색된 레코드 갯수 -->
+  <select id="search_count" resultType="int" parameterType="HashMap">
+    SELECT COUNT(*) as n_cnt
+    FROM notice
+    <choose>
+      <when test="word == null or word == ''"> <!-- 검색하지 않는 경우 -->
+      </when>
+      <otherwise>
+        WHERE word LIKE '%' || #{word} || '%'  
+      </otherwise>
+    </choose>
+  </select>
+   
+   
+   <!-- 레코드 목록, 페이징 -->
+ <select id="list_by_search_paging" resultType="NoticeVO" parameterType="HashMap">
+    SELECT noticeno, n_title, n_content, n_file1, n_size1, n_cnt, rdate, word, adminno, r
+    FROM(
+         SELECT noticeno, n_title, n_content, n_file1, n_size1, n_cnt, rdate, word, adminno, rownum as r
+         FROM(
+                  SELECT noticeno, n_title, n_content, n_file1, n_size1, n_cnt, rdate, word, adminno
+                  FROM notice
+                  <choose>
+                  <when test="word == null or word == ''"> <!-- 검색하지 않는 경우 -->
+                    </when>
+                    <otherwise>
+                    WHERE word LIKE '%' ||#{word}||'%' 
+                    </otherwise>
+                  </choose>
+                  ORDER BY noticeno DESC
+          )
+  )
+  WHERE <![CDATA[r >= #{startNum} AND r <= #{endNum}]]>
+  
+  </select>
+</mapper>
+
+
+
+
+
+
+
+

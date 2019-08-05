@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 코드는 SQL에서 직접 처리를 권장 -->
+<mapper namespace="dev.mvc.admin.AdminDAOInter">
+
+  <insert id="register_admin" parameterType="AdminVO">
+    insert into admin
+    (adminno,
+     name, id, passwd, address, profileimg,
+     phone1, phone2, email, rdate)
+    values((SELECT NVL(MAX(adminno), 0) + 1 as adminno FROM admin),
+     #{name}, #{id}, #{passwd}, #{address}, #{profileimg},
+     #{phone1}, #{phone2}, #{email}, sysdate)
+  </insert>
+  
+  <select id="list_admin" resultType="AdminVO">
+    select adminno, name, id, profileimg, passwd, admincodeno, address, phone1, phone2, email, rdate
+    from admin
+    where adminno >= 0
+    order by adminno desc
+  </select>
+  
+  <select id="list_admin_withcodes" resultType="AdminInclVO">
+    select 
+      a.adminno, a.name, a.id, a.admincodeno as admincodeno, a.address, a.phone1, a.phone2, a.email, to_char(a.rdate,'YYYY-MM-DD') as rdate,
+      c.admincodeno, c.privchar, c.privdesc
+    from admin a, admincode c
+    where (a.admincodeno = c.admincodeno) and (a.adminno >= 0)
+    order by a.adminno desc
+  </select>
+  
+  <select id="select_admin" resultType="AdminVO" parameterType="int">
+    select adminno, name, id, profileimg, passwd, admincodeno, address, phone1, phone2, email, rdate
+    from admin
+    where adminno = #{adminno}
+  </select>
+  
+  <select id="select_admin_withcodes" resultType="AdminInclVO" parameterType="int">
+    select 
+      a.adminno, a.name, a.id, a.profileimg, a.admincodeno as admincodeno, a.address, a.phone1, a.phone2, a.email, a.rdate,
+      c.admincodeno, c.privchar, c.privdesc
+    from admin a, admincode c
+    where (a.adminno = #{adminno}) and (a.admincodeno = c.admincodeno)
+  </select>
+  
+  <update id="update_admin_profile" parameterType="AdminVO">
+  update admin
+  set
+    name = #{name},
+    profileimg = #{profileimg},
+    address = #{address},
+    phone1 = #{phone1},
+    phone2 = #{phone2},
+    email = #{email}
+
+  where adminno = #{adminno}
+  </update>
+  
+  <select id="check_passwd" resultType="int" parameterType="HashMap">
+    SELECT COUNT(adminno) as cnt
+    FROM admin
+    WHERE adminno=#{adminno} AND passwd=#{passwd}
+  </select>
+  
+  <update id="update_passwd" parameterType="HashMap">
+    UPDATE admin
+    SET passwd=#{passwd}
+    WHERE adminno=#{adminno}
+  </update>
+  
+  <update id="update_admin_priv" parameterType="HashMap">
+  update admin
+  set
+    admincodeno = #{admincodeno}
+
+  where adminno = #{adminno}
+  </update>
+  
+  <select id="login_admin" parameterType="HashMap" resultType="int">
+    SELECT COUNT(*) as cnt
+    FROM admin
+    WHERE id=#{id} AND passwd=#{passwd} AND admincodeno != -8
+  </select>
+  
+  <select id="select_admin_id" resultType="AdminInclVO" parameterType="String">
+    select 
+      a.adminno, a.name, a.id, a.profileimg, a.admincodeno as admincodeno, a.address, a.phone1, a.phone2, a.email, a.rdate,
+      c.admincodeno, c.privchar, c.privdesc
+    from admin a, admincode c
+    where (a.id = #{id}) and (a.admincodeno = c.admincodeno)
+  </select>
+  
+  <delete id="delete_admin" parameterType="int">
+    DELETE FROM admin
+    WHERE adminno = #{adminno}
+  </delete>
+  
+  <!-- 관리자가 사용하는 외부 테이블 -->
+  
+  
+</mapper>

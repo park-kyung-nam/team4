@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 코드는 SQL에서 직접 처리를 권장 -->
+<mapper namespace="dev.mvc.adminlog.AdminlogDAOInter">
+
+  <insert id="record_log" parameterType="AdminlogVO">
+    insert into adminlog(
+    logno, logtype, adminno,
+    ipv4, ipv6, logdesc)
+    values (
+    (SELECT NVL(MAX(logno), 0) + 1 as logno FROM adminlog), #{logtype}, #{adminno},
+    #{ipv4}, #{ipv6}, #{logdesc})
+  </insert>
+  
+  <select id="log_list" resultType="AdminlogVO">
+    select 
+    logno, logtype, adminno, logdate, ipv4, ipv6, logdesc
+    from adminlog
+    where 1=1
+    order by logno desc
+  </select>
+  
+  <select id="log_list_full" resultType="AdminlogInclVO" parameterType="HashMap">
+  select 
+  r,
+  logtype, typedesc,
+  logno, logtype_l, adminno, logdate, ipv4, ipv6, logdesc,
+  adminno_a, name, id, admincodeno
+  from (
+  select 
+  rownum as r,
+  logtype, typedesc,
+  logno, logtype_l, adminno, logdate, ipv4, ipv6, logdesc,
+  adminno_a, name, id, admincodeno
+  from (
+    select 
+    t.logtype, t.typedesc,
+    l.logno, l.logtype as logtype_l, l.adminno, l.logdate, l.ipv4, l.ipv6, l.logdesc,
+    a.adminno as adminno_a, a.name, a.id, a.admincodeno
+    from adminlogtype t, adminlog l, admin a
+    where t.logtype = l.logtype and l.adminno = a.adminno
+    <if test="adminno != null and adminno != ''">
+    and l.adminno = #{adminno}
+    </if>
+    <if test="name != null and name != ''">
+    and a.name = #{name}
+    </if>
+    <if test="id != null and id != ''">
+    and a.id = #{id}
+    </if>
+    <if test="admincodeno != null and admincodeno != ''">
+    and a.admincodeno = #{admincodeno}
+    </if>
+    <if test="logtype != null and logtype != ''">
+    and l.logtype = #{logtype}
+    </if>
+    <if test="ipv4 != null and ipv4 != ''">
+    and ipv4 LIKE '%' || #{ipv4} || '%'  
+    </if>
+    <if test="logdesc != null and logdesc != ''">
+    and logdesc LIKE '%' || #{logdesc} || '%'  
+    </if>
+    
+  order by logno desc
+  )
+)
+where <![CDATA[r >= #{startNum} AND r <= #{endNum}]]>
+  </select>
+  
+  
+  <select id="search_count" resultType="int" parameterType="HashMap">
+    SELECT COUNT(*) as cnt
+    FROM adminlogtype t, adminlog l, admin a
+    where t.logtype = l.logtype and l.adminno = a.adminno
+    <if test="adminno != null and adminno != ''">
+    and l.adminno = #{adminno}
+    </if>
+    <if test="name != null and name != ''">
+    and a.name = #{name}
+    </if>
+    <if test="id != null and id != ''">
+    and a.id = #{id}
+    </if>
+    <if test="admincodeno != null and admincodeno != ''">
+    and a.admincodeno = #{admincodeno}
+    </if>
+    <if test="logtype != null and logtype != ''">
+    and t.logtype = #{logtype}
+    </if>
+    <if test="ipv4 != null and ipv4 != ''">
+    and ipv4 LIKE '%' || #{ipv4} || '%'  
+    </if>
+    <if test="logdesc != null and logdesc != ''">
+    and logdesc LIKE '%' || #{logdesc} || '%'  
+    </if>
+  </select>
+  
+  <select id="log_check" resultType="AdminlogVO" parameterType="int">
+    select 
+    logno, logtype, adminno, logdate, ipv4, ipv6, logdesc
+    from adminlog l
+    where logno = #{logno}
+  </select>
+  
+  <select id="log_check_full" resultType="AdminlogInclVO" parameterType="int">
+    select 
+    t.logtype, t.typedesc,
+    l.logno, l.logtype as logtype_l, l.adminno, l.logdate, l.ipv4, l.ipv6, l.logdesc,
+    a.adminno as adminno_a, a.name, a.id, a.admincodeno
+    from adminlogtype t, adminlog l, admin a
+    where t.logtype = l.logtype and l.adminno = a.adminno and logno = #{logno}
+  </select>
+  
+  <update id="log_update" parameterType="AdminlogVO">
+    update adminlog
+    set
+      logtype = #{logtype},
+      logdesc = #{logdesc}
+    where logno = #{logno}
+  </update>
+  
+  <update id="log_update_for_delete_admin" parameterType="int">
+    update adminlog
+    set
+      adminno = -1
+    where adminno = #{adminno}
+  </update>
+  
+  <delete id="log_delete" parameterType="int">
+    delete from adminlog
+    where logno = #{logno}
+  </delete>
+
+</mapper>

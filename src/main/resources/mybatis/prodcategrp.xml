@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- dev.mvc.prodcategrp.ProdcategrpDAOInter 패키지에 등록된 interface 명시,
+      패키지명과 인터페이스명은 실제로 존재해야함,
+      Spring이 내부적으로 자동으로 interface를 구현해줌. -->
+<mapper namespace="dev.mvc.prodcategrp.ProdcategrpDAOInter"> 
+  <!-- 
+  insert: INSERT SQL 실행
+  id: Spring에서 호출시 사용
+  parameterType: 전달받는 데이터 객체
+  return: 등록한 레코드 갯수 리턴
+  SQL선언시 ';'은 삭제
+  #{}: ? 동일
+  #{name}: public String getName(){...
+   -->
+   <insert id="create" parameterType="ProdcategrpVO">
+     INSERT INTO prodcategrp(prodcategrpno, prodgrp_title, prodgrp_seqno, prodgrp_visible, prodgrp_rdate)
+     VALUES((SELECT NVL(MAX(prodcategrpno), 0) + 1 as prodcategrpno FROM prodcategrp),
+                #{prodgrp_title}, #{prodgrp_seqno}, #{prodgrp_visible}, sysdate)
+   </insert>
+
+   <!-- 
+   레코드 갯수 만큼 ProdcategrpVO 객체를 만들어 ArrayList에 저장하여 리턴,
+   List<ProdcategrpVO> list = new ArrayList<ProdcategrpVO>(); 
+   -->
+   <select id="list_prodcategrpno_asc" resultType="ProdcategrpVO" >
+     SELECT prodcategrpno, prodgrp_title, prodgrp_seqno, prodgrp_visible, TO_CHAR(prodgrp_rdate, 'YYYY-MM-DD HH:MI:SS') as prodgrp_rdate
+     FROM prodcategrp
+     ORDER BY prodcategrpno ASC
+   </select> 
+   
+   <!-- prodgrp_seqno 오르차순 정렬 -->
+   <select id="list_seqno_asc" resultType="ProdcategrpVO" >
+     SELECT prodcategrpno, prodgrp_title, prodgrp_seqno, prodgrp_visible, prodgrp_cnt, TO_CHAR(prodgrp_rdate, 'YYYY-MM-DD HH:MI:SS') as prodgrp_rdate
+     FROM prodcategrp
+     ORDER BY prodgrp_seqno ASC
+   </select> 
+   
+   <!-- 조회 -->
+   <select id="read" resultType="ProdcategrpVO" parameterType="int">
+     SELECT prodcategrpno, prodgrp_title, prodgrp_seqno, prodgrp_cnt, prodgrp_visible, prodgrp_rdate 
+     FROM prodcategrp
+     WHERE prodcategrpno = #{prodcategrpno}
+   </select> 
+   
+   <!-- 수정 -->
+   <update id="update" parameterType="ProdcategrpVO">
+     UPDATE prodcategrp
+     SET prodgrp_title=#{prodgrp_title}, prodgrp_seqno=#{prodgrp_seqno}, prodgrp_visible=#{prodgrp_visible}
+     WHERE prodcategrpno = #{prodcategrpno}
+   </update>
+   
+   <!-- 삭제 -->
+   <delete id="delete" parameterType="int">
+     DELETE FROM prodcategrp
+     WHERE prodcategrpno = #{prodcategrpno}
+   </delete>
+
+  <!-- 우선순위 up 10 -> 1 -->
+  <update id="update_seqno_up" parameterType="int">
+    UPDATE prodcategrp
+    SET prodgrp_seqno = prodgrp_seqno - 1
+    WHERE prodcategrpno=#{prodcategrpno}
+  </update>
+
+  <!-- 우선순위 down 1 -> 10 -->
+  <update id="update_seqno_down" parameterType="int">
+    UPDATE prodcategrp
+    SET prodgrp_seqno = prodgrp_seqno + 1
+    WHERE prodcategrpno=#{prodcategrpno}
+  </update>     
+  
+  <!-- 출력유무 N -> Y -->
+  <update id="visible" parameterType="int">
+    UPDATE prodcategrp
+    SET prodgrp_visible='Y' 
+    WHERE prodcategrpno=#{prodcategrpno}
+  </update>
+  
+  <!-- 출력유무 Y -> N -->
+  <update id="nonvisible" parameterType="int">
+    UPDATE prodcategrp
+    SET prodgrp_visible='N'
+    WHERE prodcategrpno=#{prodcategrpno}
+  </update>
+  
+  <!-- 등록된 글수 증가 -->
+  <update id="increaseCnt" parameterType="int">
+    UPDATE prodcategrp
+    SET prodgrp_cnt = prodgrp_cnt + 1
+    WHERE prodcategrpno=#{prodcategrpno}
+  </update>
+  
+  <!-- 등록된 글수 감소 -->
+  <update id="decreaseCnt" parameterType="int">
+    UPDATE prodcategrp
+    SET prodgrp_cnt = prodgrp_cnt - 1
+    WHERE prodcategrpno=#{prodcategrpno}
+  </update>
+</mapper>
+
+
+
+
+
+
+
+

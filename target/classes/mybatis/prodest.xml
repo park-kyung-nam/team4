@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dev.mvc.prodest.ProdestDAOInter">
+  <insert id="create" parameterType="ProdestVO">
+    INSERT INTO prodest(prodestno, productno, customerno)
+    VALUES((SELECT NVL(MAX(prodestno), 0) + 1 as prodestno FROM prodest),
+               #{productno}, #{customerno})
+  </insert>
+  
+  <select id="read" resultType="Prodest_totalVO">
+    SELECT prodestno, productno, customerno, prodest_cnt, prodest_total
+    FROM prodest
+    WHERE prodestno = #{prodestno}
+  </select>
+  
+  <select id="read_by_join" resultType="Prodest_totalVO">
+    SELECT e.prodestno, e.productno, e.customerno, pc.prodcate_title, p.prod_title,
+               e.prodest_cnt, e.prodest_total
+    FROM prodest e, product p, prodcate pc, customer c
+    WHERE e.customerno = #{customerno} AND c.customerno = e.customerno
+               AND e.productno = p.productno AND p.prodcateno = pc.prodcateno
+  </select>
+  
+  <select id="list" resultType="Prodest_totalVO">
+    SELECT e.prodestno, e.productno, e.customerno, pc.prodcate_title, p.prod_title,
+              e.prodest_cnt, e.prodest_total, p.prod_price
+    FROM prodest e, product p, prodcate pc, customer c
+    WHERE e.customerno = #{customerno} AND c.customerno = e.customerno
+               AND e.productno = p.productno AND p.prodcateno = pc.prodcateno
+  </select>
+  
+  <update id="update_cnt_up">
+   UPDATE prodest 
+   SET prodest_cnt = prodest_cnt + 1
+   WHERE prodestno = #{prodestno}
+  </update>
+  
+  <update id="update_cnt_down">
+   UPDATE prodest 
+   SET prodest_cnt = prodest_cnt - 1
+   WHERE prodestno = #{prodestno}
+  </update>
+  
+  <delete id="delete">
+  DELETE FROM prodest
+  WHERE prodestno=#{prodestno}
+  </delete>
+  
+  <delete id="delete_product">
+  delete from prodest
+  where productno = #{productno}
+  </delete>
+
+</mapper>

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- dev.mvc.prodcate.ProdcateDAOInter 패키지에 등록된 interface 명시,
+      패키지명과 인터페이스명은 실제로 존재해야함,
+      Spring이 내부적으로 자동으로 interface를 구현해줌. -->
+<mapper namespace="dev.mvc.prodcate.ProdcateDAOInter"> 
+  <!-- 
+  insert: INSERT SQL 실행
+  id: Spring에서 호출시 사용
+  parameterType: 전달받는 데이터 객체
+  return: 등록한 레코드 갯수 리턴
+  SQL선언시 ';'은 삭제
+  #{}: ? 동일
+  #{name}: public String getName(){...
+   -->
+   <insert id="create" parameterType="ProdcateVO">
+     INSERT INTO prodcate(prodcateno, prodcategrpno, prodcate_title, prodcate_seqno,
+      prodcate_visible, prodcate_ids, prodcate_rdate)
+     VALUES((SELECT NVL(MAX(prodcateno), 0)+1 as prodcateno FROM prodcate),
+                 #{prodcategrpno}, #{prodcate_title}, #{prodcate_seqno}, #{prodcate_visible},
+                 #{prodcate_ids}, sysdate)
+   </insert>
+   
+   <!--  모든 카테고리 목록 -->
+   <select id="list" resultType="Prodcategrp_ProdcateVO" >
+     SELECT c.prodcategrpno, c.prodgrp_title,
+          t.prodcateno, t.prodcategrpno, t.prodcate_title, t.prodcate_seqno,
+          t.prodcate_visible, t.prodcate_ids, t.prodcate_cnt, t.prodcate_rdate
+     FROM prodcategrp c, prodcate t
+     WHERE c.prodcategrpno = t.prodcategrpno
+     ORDER BY c.prodcategrpno ASC, t.prodcate_seqno ASC
+   </select>
+
+   <!-- 카테고리 그룹번호에의한 카테고리 목록 -->
+   <select id="list_by_prodcategrpno" resultType="Prodcategrp_ProdcateVO" parameterType="int">
+     SELECT c.prodcategrpno, c.prodgrp_title, c.prodgrp_seqno,
+              t.prodcateno, t.prodcategrpno, t.prodcate_title, t.prodcate_seqno,
+              t.prodcate_visible, t.prodcate_ids, t.prodcate_cnt
+     FROM prodcategrp c, prodcate t  
+     WHERE (c.prodcategrpno = #{prodcategrpno}) AND (c.prodcategrpno = t.prodcategrpno)
+     ORDER BY c.prodcategrpno ASC, t.prodcate_seqno ASC
+   </select> 
+
+   <!-- 조회 -->
+   <select id="read" resultType="ProdcateVO" parameterType="int">
+     SELECT prodcateno, prodcategrpno, prodcate_title, prodcate_seqno, prodcate_cnt
+               prodcate_visible, prodcate_ids, prodcate_rdate
+     FROM prodcate 
+     WHERE prodcateno=#{prodcateno}
+   </select> 
+
+   <!-- Join 조회 -->
+   <select id="read_by_join" resultType="Prodcategrp_ProdcateVO" parameterType="int">
+     SELECT c.prodcategrpno, c.prodgrp_title,
+               t.prodcateno, t.prodcategrpno, t.prodcate_title, t.prodcate_seqno,
+               t.prodcate_visible, t.prodcate_ids, t.prodcate_cnt, t.prodcate_rdate
+     FROM prodcategrp c, prodcate t
+     WHERE (t.prodcateno = #{prodcateno}) AND (c.prodcategrpno = t.prodcategrpno) 
+   </select> 
+      
+   <!-- 구버전 수정 
+   <update id="grpupdate" parameterType="ProdcateVO">
+     UPDATE prodcate
+     SET prodcate_title=#{prodcate_title}, prodcate_seqno=#{prodcate_seqno},
+           prodcate_visible=#{prodcate_visible}, prodcate_ids=#{prodcate_ids}
+     WHERE prodcateno=#{prodcateno}
+   </update>
+    -->
+   <!-- 수정 -->
+   <update id="update" parameterType="ProdcateVO">
+     UPDATE prodcate
+     SET prodcategrpno = #{prodcategrpno}, prodcate_title=#{prodcate_title}, prodcate_seqno=#{prodcate_seqno},
+           prodcate_visible=#{prodcate_visible}, prodcate_ids=#{prodcate_ids}
+     WHERE prodcateno=#{prodcateno}
+   </update>
+   
+   <!-- 삭제 -->
+   <delete id="delete" parameterType="int">
+     DELETE FROM prodcate 
+     WHERE prodcateno = #{prodcateno}
+   </delete>
+
+  <update id="increaseCnt" parameterType="int">
+    UPDATE prodcate 
+    SET prodcate_cnt = prodcate_cnt + 1 
+    WHERE prodcateno=#{prodcateno}
+  </update>
+  
+  <update id="decreaseCnt" parameterType="int">
+    UPDATE prodcate 
+    SET prodcate_cnt = prodcate_cnt - 1 
+    WHERE prodcateno=#{prodcateno}
+  </update>
+  
+  <select id="count" parameterType="int">
+    SELECT COUNT(*) as prodcate_cnt
+    FROM prodcate
+    WHERE prodcategrpno = #{prodcateno}
+  </select>
+  
+  <!-- 우선순위 up 10 -> 1 -->
+  <update id="update_seqno_up" parameterType="int">
+    UPDATE prodcate
+    SET prodcate_seqno = prodcate_seqno - 1
+    WHERE prodcateno=#{prodcateno}
+  </update>
+
+  <!-- 우선순위 down 1 -> 10 -->
+  <update id="update_seqno_down" parameterType="int">
+    UPDATE prodcate
+    SET prodcate_seqno = prodcate_seqno + 1
+    WHERE prodcateno=#{prodcateno}
+  </update>     
+  
+  <!-- 출력유무 N -> Y -->
+  <update id="visible" parameterType="int">
+    UPDATE prodcate
+    SET prodcate_visible='Y' 
+    WHERE prodcateno=#{prodcateno}
+  </update>
+  
+  <!-- 출력유무 Y -> N -->
+  <update id="nonvisible" parameterType="int">
+    UPDATE prodcate
+    SET prodcate_visible='N'
+    WHERE prodcateno=#{prodcateno}
+  </update>
+         
+</mapper>
+
+
+
+
+
+
+
+

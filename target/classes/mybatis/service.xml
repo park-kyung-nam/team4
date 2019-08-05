@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- dev.mvc.cate.CateDAOInter 패키지에 등록된 interface 명시,
+      패키지명과 인터페이스명은 실제로 존재해야함,
+      Spring이 내부적으로 자동으로 interface를 구현해줌. -->
+<mapper namespace="dev.mvc.service.ServiceDAOInter"> 
+  <!-- 
+  insert: INSERT SQL 실행
+  id: Spring에서 호출시 사용
+  parameterType: 전달받는 데이터 객체
+  return: 등록한 레코드 갯수 리턴
+  SQL선언시 ';'은 삭제
+  #{}: ? 동일
+  #{name}: public String getName(){...
+   -->
+   <insert id="create" parameterType="ServiceVO">
+    INSERT  INTO ServiceCenter(question_no, 
+                            title, contents, visible,
+                            thumbs, files, sizes, 
+                            seqno, cnt, rdate)
+    VALUES ((SELECT NVL(MAX(question_no), 0) +1 AS question_no FROM ServiceCenter),
+                 #{title}, #{contents}, #{visible},
+                 #{thumbs}, #{files}, #{sizes},
+                 1, 1, sysdate)
+  </insert>
+  
+   <!--  모든 카테고리 목록 -->
+   <select id="list" resultType="ServiceVO" >
+     SELECT question_no, title, contents, visible, seqno, cnt, rdate
+     FROM ServiceCenter
+     ORDER BY question_no DESC
+   </select> 
+   
+   <select id="list_by_question_no" resultType="ServiceVO" parameterType="int">
+    SELECT question_no, title, contents, visible, seqno, cnt, rdate
+     FROM ServiceCenter
+    WHERE question_no=#{question_no}
+    ORDER BY question_no DESC
+  </select>
+   
+   
+   <select id="read" resultType="ServiceVO" parameterType="int">
+     SELECT question_no, title, contents, visible, seqno, cnt, rdate
+     FROM ServiceCenter
+     WHERE question_no = #{question_no}
+   </select> 
+   
+   
+   <!-- 수정 -->
+   <update id="update" parameterType="ServiceVO">
+     UPDATE ServiceCenter
+     SET title=#{title}, contents=#{contents}, visible=#{visible}
+     WHERE question_no = #{question_no}
+   </update>
+   
+   <!-- 삭제 -->
+   <delete id="delete" parameterType="int">
+     DELETE FROM ServiceCenter
+     WHERE question_no = #{question_no}
+   </delete>
+   
+   
+   <!-- category 별 검색된 레코드 목록 -->
+  <select id="list_by_search" resultType="ServiceVO" parameterType="HashMap">
+    SELECT question_no, title, contents, visible, seqno, cnt, rdate
+    FROM ServiceCenter
+    <choose>
+      <when test="contents == null or contents == ''"> <!-- 검색하지 않는 경우 -->
+        WHERE question_no=#{question_no}
+      </when>
+      <otherwise>
+        WHERE question_no=#{question_no} AND contents LIKE '%' || #{contents} || '%'  
+      </otherwise>
+    </choose>
+    ORDER BY seqno DESC
+  </select>
+  
+  
+  <!-- category 별 검색된 레코드 목록 + 페이징 + 답변-->
+  <select id="list_by_search_paging" resultType="ServiceVO" parameterType="HashMap">
+    SELECT question_no, title, contents, visible, seqno, cnt, rdate, r
+    FROM(
+             SELECT question_no, title, contents, visible, seqno, cnt, rdate, rownum as r
+             FROM(
+                      SELECT question_no, title, contents, visible, seqno, cnt, rdate
+                      FROM ServiceCenter
+                      <choose>
+                        <when test="word == null or word == ''"> <!-- 검색하지 않는 경우 -->
+                          WHERE question_no=#{question_no}
+                        </when>
+                        <otherwise>
+                          WHERE question_no=#{question_no} AND contents LIKE '%' || #{contents} || '%'  
+                        </otherwise>
+                      </choose>
+                      ORDER BY seqno DESC
+             )
+    )
+    WHERE <![CDATA[r >= #{startNum} AND r <= #{endNum}]]>
+    <!-- WHERE r >=1 AND r <= 3 -->
+  </select>
+   
+   
+  
+   </mapper>
